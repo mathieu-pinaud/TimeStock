@@ -13,25 +13,26 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Installer .NET SDK 8 depuis Microsoft
+      - name: Installer .NET SDK 8
         run: |
           curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir $HOME/.dotnet --version 8.0.112
           echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
           echo "$HOME/.dotnet" >> $GITHUB_PATH
-          export PATH="$HOME/.dotnet:$PATH"
 
-      - name: Vérifier .NET et installer MAUI Android
+      - name: Installer MAUI Android
         run: |
-          dotnet --version
           dotnet workload restore
           dotnet workload install maui-android
 
-      - name: Build de l’application Android
+      - name: Build Android
         run: |
           cd src/Mobile
-          dotnet publish -f net8.0-android -c Release -o out
+          dotnet restore
+          dotnet build ../Shared/Shared.csproj -c Release
+          dotnet build ../Client/Client.csproj -c Release
+          dotnet publish Mobile.Android.csproj -c Release -o out
 
-      - name: Upload du build Android
+      - name: Upload Android Build
         uses: actions/upload-artifact@v4
         with:
           name: android-build
@@ -43,25 +44,26 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Installer .NET SDK 8 depuis Microsoft
+      - name: Installer .NET SDK 8
         run: |
-          curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir /usr/local/share/dotnet --version 8.0.112
+          brew install --cask dotnet-sdk
           echo "DOTNET_ROOT=/usr/local/share/dotnet" >> $GITHUB_ENV
           echo "/usr/local/share/dotnet" >> $GITHUB_PATH
-          export PATH="/usr/local/share/dotnet:$PATH"
 
-      - name: Vérifier .NET et installer MAUI iOS
+      - name: Installer MAUI iOS
         run: |
-          dotnet --version
-          sudo dotnet workload restore
-          sudo dotnet workload install maui-ios
+          dotnet workload restore
+          dotnet workload install maui-ios
 
-      - name: Build de l’application iOS
+      - name: Build iOS
         run: |
           cd src/Mobile
-          dotnet publish -f net8.0-ios -c Release -o out
+          dotnet restore
+          dotnet build ../Shared/Shared.csproj -c Release
+          dotnet build ../Client/Client.csproj -c Release
+          dotnet publish Mobile.iOS.csproj -c Release -o out
 
-      - name: Upload du build iOS
+      - name: Upload iOS Build
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
