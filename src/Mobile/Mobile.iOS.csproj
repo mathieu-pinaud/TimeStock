@@ -17,6 +17,8 @@
     <ApplicationVersion>1</ApplicationVersion>
 
     <SupportedOSPlatformVersion>14.2</SupportedOSPlatformVersion>
+    <BlazorWebViewAutoInjectJavaScript>false</BlazorWebViewAutoInjectJavaScript>
+    <BlazorWebViewAutoInjectStyles>false</BlazorWebViewAutoInjectStyles>
   </PropertyGroup>
 
   <ItemGroup>

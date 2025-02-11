@@ -54,7 +54,7 @@ jobs:
 
       - name: Installer .NET SDK 8 (macOS)
         run: |
-          sudo brew install --cask dotnet-sdk
+          brew install --cask dotnet-sdk
           echo "DOTNET_ROOT=/usr/local/share/dotnet" >> $GITHUB_ENV
           echo "/usr/local/share/dotnet" >> $GITHUB_PATH
 
