@@ -1,1 +1,30 @@
-../../infrastructure/GitHubActions/build-ios.yml
+name: Build MAUI iOS
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:  # Permet de déclencher manuellement l'action
+
+jobs:
+  build-ios:
+    runs-on: macos-latest  # Utilisation d'un Mac distant
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+
+      - name: Installer .NET et MAUI iOS
+        run: |
+          dotnet workload install maui-ios
+          dotnet --info
+
+      - name: Build de l’application iOS
+        run: |
+          cd src/Mobile
+          dotnet publish -f net8.0-ios -c Release -o out
+
+      - name: Upload du build iOS
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-build
+          path: src/Mobile/out
