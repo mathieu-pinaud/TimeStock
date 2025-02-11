@@ -10,14 +10,16 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout du code
-        uses: actions/checkout@v4
-
-      - name: Installer .NET et MAUI Android
+      - name: Installer .NET 8 et MAUI
         run: |
+          sudo apt update
+          sudo apt install -y dotnet-sdk-8.0
+          dotnet --version
           dotnet workload install maui-android
           dotnet workload restore
-          dotnet --info
+
+      - name: Checkout du code
+        uses: actions/checkout@v4
 
       - name: Build de l’application Android
         run: |
@@ -36,7 +38,7 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Installer .NET et MAUI iOS
+      - name: Installer .NET 8 et MAUI iOS
         run: |
           dotnet workload install maui-ios
           dotnet workload restore
