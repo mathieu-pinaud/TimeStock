@@ -10,20 +10,21 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
       - name: Installer .NET SDK 8 depuis Microsoft
         run: |
           curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir $HOME/.dotnet --version 8.0.112
           echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
           echo "$HOME/.dotnet" >> $GITHUB_PATH
+          export PATH="$HOME/.dotnet:$PATH"
 
       - name: Vérifier .NET et installer MAUI Android
         run: |
           dotnet --version
-          dotnet workload install maui-android
           dotnet workload restore
-
-      - name: Checkout du code
-        uses: actions/checkout@v4
+          dotnet workload install maui-android
 
       - name: Build de l’application Android
         run: |
@@ -42,17 +43,18 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Installer .NET SDK 8 et MAUI iOS
+      - name: Installer .NET SDK 8 depuis Microsoft
         run: |
-          brew uninstall --cask dotnet-sdk || true
-          brew install --cask dotnet-sdk@8
+          curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir /usr/local/share/dotnet --version 8.0.112
           echo "DOTNET_ROOT=/usr/local/share/dotnet" >> $GITHUB_ENV
           echo "/usr/local/share/dotnet" >> $GITHUB_PATH
+          export PATH="/usr/local/share/dotnet:$PATH"
 
       - name: Vérifier .NET et installer MAUI iOS
         run: |
+          dotnet --version
+          sudo dotnet workload restore
           sudo dotnet workload install maui-ios
-          dotnet workload restore
 
       - name: Build de l’application iOS
         run: |
