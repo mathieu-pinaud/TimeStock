@@ -3,19 +3,23 @@ name: Build MAUI Android & iOS
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
     steps:
-      - name: Installer .NET 8 et MAUI
+      - name: Installer .NET SDK depuis Microsoft
         run: |
-          sudo apt update
-          sudo apt install -y dotnet-sdk-8.0
+          curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir $HOME/.dotnet --version 8.0.112
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
+
+      - name: Vérifier .NET et installer MAUI Android
+        run: |
           dotnet --version
-          dotnet workload install maui-android
+          dotnet workload install maui maui-android
           dotnet workload restore
 
       - name: Checkout du code
@@ -38,11 +42,12 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Installer .NET 8 et MAUI iOS
+      - name: Installer .NET et MAUI iOS
         run: |
-          dotnet workload install maui-ios
+          brew install --cask dotnet-sdk
+          dotnet --version
+          dotnet workload install maui maui-ios
           dotnet workload restore
-          dotnet --info
 
       - name: Build de l’application iOS
         run: |
