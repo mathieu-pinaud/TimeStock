@@ -3,7 +3,7 @@ name: Build MAUI Android & iOS
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
