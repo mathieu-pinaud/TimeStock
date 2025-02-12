@@ -5,7 +5,7 @@
     
     <blazor:BlazorWebView HostPage="wwwroot/index.html">
         <blazor:BlazorWebView.RootComponents>
-            <blazor:RootComponent Selector="#app" ComponentType="{x:Type Client.Page.Home}" />
+            <blazor:RootComponent Selector="#app" ComponentType="{x:Type Client.Pages.Home}" />
         </blazor:BlazorWebView.RootComponents>
     </blazor:BlazorWebView>
 </ContentPage>
