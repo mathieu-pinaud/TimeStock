@@ -31,6 +31,7 @@
   <ItemGroup>
     <!-- Exclure les fichiers conflictuels -->
     <Content Remove="wwwroot/css/app.css" />
+    <Content Remove="wwwroot/css/bootstrap/bootstrap.min.css" />
   </ItemGroup>
 
   <ItemGroup>
