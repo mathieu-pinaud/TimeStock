@@ -10,13 +10,15 @@
     <EnableDefaultCssItems>false</EnableDefaultCssItems>
     <Nullable>enable</Nullable>
 
-    <!-- Infos d'application -->
+    <!-- Informations sur l'application -->
     <ApplicationTitle>TimeStock</ApplicationTitle>
     <ApplicationId>com.mathieupinaud.timestock</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
 
     <SupportedOSPlatformVersion>14.2</SupportedOSPlatformVersion>
+
+    <!-- Empêcher MAUI d'injecter automatiquement les fichiers de Blazor -->
     <BlazorWebViewAutoInjectJavaScript>false</BlazorWebViewAutoInjectJavaScript>
     <BlazorWebViewAutoInjectStyles>false</BlazorWebViewAutoInjectStyles>
   </PropertyGroup>
@@ -27,7 +29,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Icône et Splash Screen -->
+    <!-- Exclure les fichiers conflictuels -->
+    <Content Remove="wwwroot/css/app.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Icônes et Splash Screens -->
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
@@ -37,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Dépendances NuGet -->
     <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.100" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.100" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.100" />

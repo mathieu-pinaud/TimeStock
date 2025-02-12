@@ -19,20 +19,25 @@ jobs:
           echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
           echo "$HOME/.dotnet" >> $GITHUB_PATH
 
+      - name: Installer Android SDK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip sdk-tools.zip -d $ANDROID_HOME/cmdline-tools
+          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          yes | sdkmanager --licenses
+          sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+
       - name: Installer MAUI Android
         run: |
           dotnet workload restore
           dotnet workload install maui-android
-
-      - name: Build Shared
-        run: |
-          dotnet restore src/Shared/Shared.csproj
-          dotnet build src/Shared/Shared.csproj -c Release
-
-      - name: Build Client
-        run: |
-          dotnet restore src/Client/Client.csproj
-          dotnet build src/Client/Client.csproj -c Release
 
       - name: Build Android
         run: |
@@ -57,21 +62,6 @@ jobs:
           brew install --cask dotnet-sdk
           echo "DOTNET_ROOT=/usr/local/share/dotnet" >> $GITHUB_ENV
           echo "/usr/local/share/dotnet" >> $GITHUB_PATH
-
-      - name: Installer MAUI iOS
-        run: |
-          sudo dotnet workload restore
-          sudo dotnet workload install maui-ios
-
-      - name: Build Shared
-        run: |
-          dotnet restore src/Shared/Shared.csproj
-          dotnet build src/Shared/Shared.csproj -c Release
-
-      - name: Build Client
-        run: |
-          dotnet restore src/Client/Client.csproj
-          dotnet build src/Client/Client.csproj -c Release
 
       - name: Build iOS
         run: |
