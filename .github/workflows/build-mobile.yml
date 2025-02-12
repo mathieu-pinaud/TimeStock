@@ -39,6 +39,16 @@ jobs:
           dotnet workload restore
           dotnet workload install maui-android
 
+      - name: Build Shared
+        run: |
+          dotnet restore src/Shared/Shared.csproj
+          dotnet build src/Shared/Shared.csproj -c Release
+
+      - name: Build Client
+        run: |
+          dotnet restore src/Client/Client.csproj
+          dotnet build src/Client/Client.csproj -c Release
+
       - name: Build Android
         run: |
           dotnet restore src/Mobile/Mobile.Android.csproj
@@ -62,6 +72,21 @@ jobs:
           brew install --cask dotnet-sdk
           echo "DOTNET_ROOT=/usr/local/share/dotnet" >> $GITHUB_ENV
           echo "/usr/local/share/dotnet" >> $GITHUB_PATH
+
+      - name: Installer MAUI iOS
+        run: |
+          dotnet workload restore
+          dotnet workload install maui-ios
+
+      - name: Build Shared
+        run: |
+          dotnet restore src/Shared/Shared.csproj
+          dotnet build src/Shared/Shared.csproj -c Release
+
+      - name: Build Client
+        run: |
+          dotnet restore src/Client/Client.csproj
+          dotnet build src/Client/Client.csproj -c Release
 
       - name: Build iOS
         run: |
