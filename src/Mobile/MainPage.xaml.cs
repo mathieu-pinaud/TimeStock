@@ -10,6 +10,6 @@ public partial class MainPage : ContentPage
         InitializeComponent();
 
         var blazorWebView = this.FindByName<BlazorWebView>("BlazorView");
-        blazorWebView?.RootComponents.Add(typeof(Home));
+		blazorWebView?.RootComponents.Add(new RootComponent("#app", typeof(Home)));
     }
 }
