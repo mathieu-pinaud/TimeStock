@@ -12,4 +12,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.12" PrivateAssets="all" />
   </ItemGroup>
 
+<PropertyGroup>
+    <WasmEnableWebcil>false</WasmEnableWebcil>
+</PropertyGroup>
+
 </Project>
