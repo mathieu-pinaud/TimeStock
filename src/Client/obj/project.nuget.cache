@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "NauqQNPF1W4=",
+  "dgSpecHash": "m6PZ8/w/azQ=",
   "success": true,
   "projectFilePath": "/home/matskuh/TimeStock/src/Client/Client.csproj",
   "expectedPackageFiles": [
@@ -29,9 +29,9 @@
     "/home/matskuh/.nuget/packages/microsoft.jsinterop/8.0.12/microsoft.jsinterop.8.0.12.nupkg.sha512",
     "/home/matskuh/.nuget/packages/microsoft.jsinterop.webassembly/8.0.12/microsoft.jsinterop.webassembly.8.0.12.nupkg.sha512",
     "/home/matskuh/.nuget/packages/microsoft.net.illink.tasks/8.0.12/microsoft.net.illink.tasks.8.0.12.nupkg.sha512",
-    "/home/matskuh/.nuget/packages/microsoft.net.sdk.webassembly.pack/8.0.12/microsoft.net.sdk.webassembly.pack.8.0.12.nupkg.sha512",
+    "/home/matskuh/.nuget/packages/microsoft.net.sdk.webassembly.pack/8.0.14/microsoft.net.sdk.webassembly.pack.8.0.14.nupkg.sha512",
     "/home/matskuh/.nuget/packages/system.io.pipelines/8.0.0/system.io.pipelines.8.0.0.nupkg.sha512",
-    "/home/matskuh/.nuget/packages/microsoft.netcore.app.runtime.mono.browser-wasm/8.0.12/microsoft.netcore.app.runtime.mono.browser-wasm.8.0.12.nupkg.sha512"
+    "/home/matskuh/.nuget/packages/microsoft.netcore.app.runtime.mono.browser-wasm/8.0.14/microsoft.netcore.app.runtime.mono.browser-wasm.8.0.14.nupkg.sha512"
   ],
   "logs": []
 }

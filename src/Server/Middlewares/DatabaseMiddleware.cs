@@ -1,6 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Http;
-using MySql.Data.MySqlClient;
 
 public class DatabaseMiddleware
 {
