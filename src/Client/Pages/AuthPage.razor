@@ -1,0 +1,41 @@
+@page "/auth"
+@using TimeStock.Shared.Dtos
+
+<h3>Authentification</h3>
+
+<div class="d-flex gap-3">
+    <button class="btn @(ShowLogin ? "btn-primary" : "btn-outline-primary")" @onclick="ShowLoginForm">
+        Se connecter
+    </button>
+    <button class="btn @(ShowRegister ? "btn-success" : "btn-outline-success")" @onclick="ShowRegisterForm">
+        S'inscrire
+    </button>
+</div>
+
+<div class="mt-4">
+    @if (ShowLogin)
+    {
+        <Login />
+    }
+    else if (ShowRegister)
+    {
+        <Register />
+    }
+</div>
+
+@code {
+    private bool ShowLogin = true;
+    private bool ShowRegister = false;
+
+    private void ShowLoginForm()
+    {
+        ShowLogin = true;
+        ShowRegister = false;
+    }
+
+    private void ShowRegisterForm()
+    {
+        ShowLogin = false;
+        ShowRegister = true;
+    }
+}

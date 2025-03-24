@@ -1,0 +1,64 @@
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@using TimeStock.Shared.Dtos
+
+<h3>Connexion</h3>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger">@ErrorMessage</div>
+}
+
+<EditForm Model="LoginModel" OnValidSubmit="SubmitLogin">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="LoginModel.Email" />
+        <ValidationMessage For="@(() => LoginModel.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Mot de passe</label>
+        <InputText class="form-control" type="password" @bind-Value="LoginModel.Password" />
+        <ValidationMessage For="@(() => LoginModel.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Se connecter</button>
+</EditForm>
+
+@code {
+    private LoginDto LoginModel = new();
+    private string? ErrorMessage;
+
+    private async Task SubmitLogin()
+    {
+        try
+        {
+            LoginModel.Password = await JS.InvokeAsync<string>("hashPassword", LoginModel.Password);
+
+            var response = await Http.PostAsJsonAsync("api/auth/login", LoginModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+                await JS.InvokeVoidAsync("localStorage.setItem", "jwt", result!.Token);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                ErrorMessage = "Échec de la connexion. Vérifiez vos identifiants.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Erreur de connexion : " + ex.Message;
+        }
+    }
+
+    private class LoginResponseDto
+    {
+        public string Token { get; set; } = string.Empty;
+    }
+}

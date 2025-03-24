@@ -1,0 +1,74 @@
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@using TimeStock.Shared.Dtos
+
+<h3>Inscription</h3>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger">@ErrorMessage</div>
+}
+
+<EditForm Model="UserModel" OnValidSubmit="SubmitRegister">
+    <DataAnnotationsValidator />
+    
+    <div class="mb-3">
+        <label>Nom de compte</label>
+        <InputText class="form-control" @bind-Value="UserModel.AccountName" />
+        <ValidationMessage For="@(() => UserModel.AccountName)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Nom</label>
+        <InputText class="form-control" @bind-Value="UserModel.Name" />
+        <ValidationMessage For="@(() => UserModel.Name)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Prénom</label>
+        <InputText class="form-control" @bind-Value="UserModel.FirstName" />
+        <ValidationMessage For="@(() => UserModel.FirstName)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="UserModel.Email" />
+        <ValidationMessage For="@(() => UserModel.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Mot de passe</label>
+        <InputText class="form-control" type="password" @bind-Value="UserModel.Password" />
+        <ValidationMessage For="@(() => UserModel.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-success">S'inscrire</button>
+</EditForm>
+
+@code {
+    private UserDto UserModel = new();
+    private string? ErrorMessage;
+
+    private async Task SubmitRegister()
+    {
+        try
+        {               
+            UserModel.Password = await JS.InvokeAsync<string>("hashPassword", UserModel.Password);
+            var response = await Http.PostAsJsonAsync("api/auth/register", UserModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                ErrorMessage = "Échec de l'inscription.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Erreur d'inscription : " + ex.Message;
+        }
+    }
+}
