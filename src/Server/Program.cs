@@ -6,7 +6,10 @@ builder.WebHost.UseUrls("http://0.0.0.0:5000", "http://0.0.0.0:5001");
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<DatabaseService>();
 
 var app = builder.Build();
 
@@ -39,6 +42,7 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
+app.MapControllers();
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

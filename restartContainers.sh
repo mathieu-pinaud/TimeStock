@@ -12,9 +12,6 @@ cd infrastructure/Docker || { echo "Dossier infrastructure/Docker introuvable.";
 # Arrêt des conteneurs
 docker-compose down
 
-# Nettoyage des ressources inutilisées
-docker system prune -f --volumes
-
 # Reconstruction et redémarrage des conteneurs
 docker-compose up --build -d
 

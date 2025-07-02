@@ -9,11 +9,14 @@ using TimeStock.Shared.Models;
 public class AuthController : ControllerBase
 {
     private readonly DatabaseService _databaseService;
+    private readonly JwtService _jwtService;
 
-    public AuthController(DatabaseService databaseService)
+    public AuthController(DatabaseService databaseService, JwtService jwtService)
     {
         _databaseService = databaseService;
+        _jwtService = jwtService;
     }
+
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserDto userDto)
@@ -37,18 +40,18 @@ public class AuthController : ControllerBase
                 Name = userDto.Name,
                 FirstName = userDto.FirstName,
                 Email = userDto.Email,
-                PasswordHash = userDto.Password, // Déjà hashé côté client
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
                 DatabaseName = dbName
             };
 
             // Sauvegarde dans la DB principale + Création de la base de l'utilisateur
             await _databaseService.SaveUserAsync(newUser, dbPassword);
 
-            return Ok(new { message = "Utilisateur enregistré avec succès", database = dbName, dbPassword });
+            return Ok(new { message = "Utilisateur enregistré avec succès", database = dbName});
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Erreur d'inscription : {ex.Message}");
+            Console.WriteLine($"Erreur d'inscription : {ex.Message}");
             return StatusCode(500, "Erreur lors de l'inscription.");
         }
     }
@@ -62,15 +65,22 @@ public class AuthController : ControllerBase
             if (user == null)
                 return Unauthorized(new { message = "Utilisateur introuvable" });
 
-            // Vérifie le mot de passe
             if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
                 return Unauthorized(new { message = "Mot de passe incorrect" });
 
-            return Ok(new
+            var token = _jwtService.GenerateToken(user);
+            var expiration = DateTime.UtcNow.AddMinutes(60); // à synchroniser plus tard si tu veux le rendre dynamique
+
+            var response = new LoginResponseDto
             {
-                message = "Connexion réussie",
-                database = user.DatabaseName
-            });
+                Token = token,
+                Expiration = expiration,
+                Email = user.Email,
+                AccountName = user.AccountName,
+                DatabaseName = user.DatabaseName
+            };
+
+            return Ok(response);
         }
         catch (Exception ex)
         {
