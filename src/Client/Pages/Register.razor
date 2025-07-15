@@ -1,7 +1,8 @@
-@inject HttpClient Http
-@inject NavigationManager Navigation
-@inject IJSRuntime JS
+@page "/auth/register"
+@inject AuthService Auth
+@inject NavigationManager Nav
 @using TimeStock.Shared.Dtos
+@using Client.Services
 
 <h3>Inscription</h3>
 
@@ -10,65 +11,70 @@
     <div class="alert alert-danger">@ErrorMessage</div>
 }
 
-<EditForm Model="UserModel" OnValidSubmit="SubmitRegister">
+<EditForm Model="@UserModel" OnValidSubmit="SubmitRegister">
     <DataAnnotationsValidator />
-    
+
     <div class="mb-3">
         <label>Nom de compte</label>
         <InputText class="form-control" @bind-Value="UserModel.AccountName" />
-        <ValidationMessage For="@(() => UserModel.AccountName)" />
+        <ValidationMessage For="() => UserModel.AccountName" />
     </div>
 
     <div class="mb-3">
         <label>Nom</label>
         <InputText class="form-control" @bind-Value="UserModel.Name" />
-        <ValidationMessage For="@(() => UserModel.Name)" />
+        <ValidationMessage For="() => UserModel.Name" />
     </div>
 
     <div class="mb-3">
         <label>Prénom</label>
         <InputText class="form-control" @bind-Value="UserModel.FirstName" />
-        <ValidationMessage For="@(() => UserModel.FirstName)" />
+        <ValidationMessage For="() => UserModel.FirstName" />
     </div>
 
     <div class="mb-3">
         <label>Email</label>
         <InputText class="form-control" @bind-Value="UserModel.Email" />
-        <ValidationMessage For="@(() => UserModel.Email)" />
+        <ValidationMessage For="() => UserModel.Email" />
     </div>
 
     <div class="mb-3">
         <label>Mot de passe</label>
-        <InputText class="form-control" type="password" @bind-Value="UserModel.Password" />
-        <ValidationMessage For="@(() => UserModel.Password)" />
+        <InputText type="password" class="form-control" @bind-Value="UserModel.Password" />
+        <ValidationMessage For="() => UserModel.Password" />
     </div>
 
-    <button type="submit" class="btn btn-success">S'inscrire</button>
+    <button class="btn btn-success" type="submit" disabled="@IsBusy">
+        @(IsBusy ? "Inscription..." : "S'inscrire")
+    </button>
 </EditForm>
 
 @code {
-    private UserDto UserModel = new();
+    private readonly UserDto UserModel = new();
     private string? ErrorMessage;
+    private bool IsBusy;
 
     private async Task SubmitRegister()
     {
-        try
-        {               
-            UserModel.Password = await JS.InvokeAsync<string>("hashPassword", UserModel.Password);
-            var response = await Http.PostAsJsonAsync("api/auth/register", UserModel);
+        IsBusy = true;
+        ErrorMessage = null;
 
-            if (response.IsSuccessStatusCode)
-            {
-                Navigation.NavigateTo("/login");
-            }
+        try
+        {
+            var ok = await Auth.RegisterAndLoginAsync(UserModel); // méthode utilitaire
+
+            if (ok)
+                Nav.NavigateTo("/", forceLoad: false);
             else
-            {
                 ErrorMessage = "Échec de l'inscription.";
-            }
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Erreur d'inscription : " + ex.Message;
+            ErrorMessage = $"Erreur d'inscription : {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 }

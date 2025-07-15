@@ -26,13 +26,13 @@ public class DatabaseService
         return Convert.ToInt32(await command.ExecuteScalarAsync()) > 0;
     }
 
-    public async Task SaveUserAsync(User user, string dbPassword)
+    public async Task SaveUserAsync(User user)
     {
         using var connection = new MySqlConnection(_masterConnectionString);
         await connection.OpenAsync();
 
-        string insertUserQuery = "INSERT INTO Users (AccountName, Name, FirstName, Email, PasswordHash, DatabaseName) " +
-                                 "VALUES (@AccountName, @Name, @FirstName, @Email, @PasswordHash, @DatabaseName);";
+        string insertUserQuery = "INSERT INTO Users (AccountName, Name, FirstName, Email, PasswordHash, DatabaseName, DatabasePassword) " +
+                                 "VALUES (@AccountName, @Name, @FirstName, @Email, @PasswordHash, @DatabaseName, @DatabasePassword);";
 
         using var insertCommand = new MySqlCommand(insertUserQuery, connection);
         insertCommand.Parameters.AddWithValue("@AccountName", user.AccountName);
@@ -41,15 +41,18 @@ public class DatabaseService
         insertCommand.Parameters.AddWithValue("@Email", user.Email);
         insertCommand.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
         insertCommand.Parameters.AddWithValue("@DatabaseName", user.DatabaseName);
+        insertCommand.Parameters.AddWithValue("@DatabasePassword", user.DatabasePassword);
+
         await insertCommand.ExecuteNonQueryAsync();
 
-        // **Création de la base de données et de l'utilisateur MySQL dédié**
-        string createDbQuery = $"CREATE DATABASE {user.DatabaseName};";
-        string createUserQuery = $"CREATE USER '{user.AccountName}'@'%' IDENTIFIED BY '{dbPassword}';";
-        string grantQuery = $"GRANT ALL PRIVILEGES ON {user.DatabaseName}.* TO '{user.AccountName}'@'%';";
+        using var createDbCommand = new MySqlCommand($"CREATE DATABASE `{user.DatabaseName}`;", connection);
+        await createDbCommand.ExecuteNonQueryAsync();
 
-        using var dbCommand = new MySqlCommand($"{createDbQuery} {createUserQuery} {grantQuery}", connection);
-        await dbCommand.ExecuteNonQueryAsync();
+        using var createUserCommand = new MySqlCommand($"CREATE USER '{user.AccountName}'@'%' IDENTIFIED BY '{user.DatabasePassword}';", connection);
+        await createUserCommand.ExecuteNonQueryAsync();
+
+        using var grantCommand = new MySqlCommand($"GRANT ALL PRIVILEGES ON `{user.DatabaseName}`.* TO '{user.AccountName}'@'%';", connection);
+        await grantCommand.ExecuteNonQueryAsync();
     }
 
     public async Task<User?> GetUserByEmailAsync(string email)
@@ -57,7 +60,7 @@ public class DatabaseService
         using var connection = new MySqlConnection(_masterConnectionString);
         await connection.OpenAsync();
 
-        string query = "SELECT Id, AccountName, Name, FirstName, Email, PasswordHash, DatabaseName FROM Users WHERE Email = @Email";
+        string query = "SELECT Id, AccountName, Name, FirstName, Email, PasswordHash, DatabaseName, DatabasePassword FROM Users WHERE Email = @Email";
         using var command = new MySqlCommand(query, connection);
         command.Parameters.AddWithValue("@Email", email);
 
@@ -72,7 +75,8 @@ public class DatabaseService
             FirstName = reader.GetString(3),
             Email = reader.GetString(4),
             PasswordHash = reader.GetString(5),
-            DatabaseName = reader.GetString(6)
+            DatabaseName = reader.GetString(6),
+            DatabasePassword = reader.GetString(7)
         };
     }
 }

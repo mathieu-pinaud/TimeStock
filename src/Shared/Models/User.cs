@@ -9,5 +9,7 @@ namespace TimeStock.Shared.Models
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string DatabaseName { get; set; } = string.Empty; // Stocke la DB de l'utilisateur
+        public string DatabasePassword { get; set; } = null!;
+
     }
 }

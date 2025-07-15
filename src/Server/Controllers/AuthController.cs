@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 using TimeStock.Shared.Dtos;
 using TimeStock.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 [Route("api/auth")]
 [ApiController]
@@ -41,13 +41,26 @@ public class AuthController : ControllerBase
                 FirstName = userDto.FirstName,
                 Email = userDto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
-                DatabaseName = dbName
+                DatabaseName = dbName,
+                DatabasePassword = dbPassword
             };
 
             // Sauvegarde dans la DB principale + Création de la base de l'utilisateur
-            await _databaseService.SaveUserAsync(newUser, dbPassword);
+            await _databaseService.SaveUserAsync(newUser);
 
-            return Ok(new { message = "Utilisateur enregistré avec succès", database = dbName});
+            var token = _jwtService.GenerateToken(newUser);
+            var expiration = DateTime.UtcNow.AddMinutes(60);
+
+            var response = new LoginResponseDto
+            {
+                Token = token,
+                Expiration = expiration,
+                Email = newUser.Email,
+                AccountName = newUser.AccountName,
+                DatabaseName = newUser.DatabaseName
+            };
+
+            return Ok(response);
         }
         catch (Exception ex)
         {
@@ -87,5 +100,19 @@ public class AuthController : ControllerBase
             Console.WriteLine($"Erreur de connexion : {ex.Message}");
             return StatusCode(500, "Erreur lors de la connexion.");
         }
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public ActionResult<MeResponseDto> Me()
+    {
+        var user = HttpContext.User;
+
+        return new MeResponseDto
+        {
+            Email = user.FindFirst(ClaimTypes.Email)?.Value,
+            AccountName = user.FindFirst("account")?.Value,
+            DatabaseName = user.FindFirst("db")?.Value
+        };
     }
 }

@@ -1,8 +1,43 @@
 ﻿@page "/"
-@namespace Client.Pages
+@inject AuthService Auth
+@inject NavigationManager Nav
+@using Client.Services
+@using TimeStock.Shared.Dtos 
 
-<PageTitle>Home</PageTitle>
+<h3>Bienvenue !</h3>
 
-<h1>Hello, world!</h1>
+@if (isBusy)
+{
+    <p>Chargement…</p>
+}
+else if (me is null)
+{
+    <p>Impossible de récupérer vos informations.</p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-3">Email</dt>
+        <dd class="col-9">@me.Email</dd>
 
-Welcome to your new app.
+        <dt class="col-3">Compte</dt>
+        <dd class="col-9">@me.AccountName</dd>
+
+        <dt class="col-3">Base SQL</dt>
+        <dd class="col-9">@me.DatabaseName</dd>
+    </dl>
+}
+
+@code {
+    private MeResponseDto? me;
+    private bool isBusy = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        me = await Auth.GetCurrentUserAsync();
+        isBusy = false;
+
+        if (me is null)
+            Nav.NavigateTo("/auth", forceLoad: false);
+    }
+}

@@ -1,19 +1,62 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseUrls("http://0.0.0.0:5000", "http://0.0.0.0:5001");
 
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// ------------------------------------------------------------
+// 1. Configuration & DI
+// ------------------------------------------------------------
+
+// Swagger, MVC
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+
+// Services applicatifs
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<DatabaseService>();
 
+// Tenancy
+builder.Services.AddHttpContextAccessor();                          // accès à HttpContext
+builder.Services.AddScoped<ITenantContext, TenantContext>();        // lit les claims account/db
+builder.Services.AddScoped<ITenantConnectionFactory, TenantConnectionFactory>();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ITenantCredentialsStore, TenantCredentialsStore>();
+
+// JWT
+var jwt = builder.Configuration.GetSection("Jwt");
+builder.Services.AddAuthentication(opt =>
+{
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(opt =>
+{
+    opt.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer           = true,
+        ValidateAudience         = true,
+        ValidateLifetime         = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer      = jwt["Issuer"],
+        ValidAudience    = jwt["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwt["Key"]!)
+        ),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// ------------------------------------------------------------
+// 2. Build & middleware pipeline
+// ------------------------------------------------------------
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -22,29 +65,37 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseAuthentication();   // JWT
+app.UseAuthorization();    // [Authorize]
 
+// ------------------------------------------------------------
+// 3. Endpoints
+// ------------------------------------------------------------
+app.MapControllers();
+
+// Exemple d’endpoint minimal (optionnel)
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var summaries = new[]
+    {
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild",
+        "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    };
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
             Random.Shared.Next(-20, 55),
             summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+        ));
+    return forecast.ToArray();
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapControllers();
 app.Run();
 
+// Petit record DTO (se trouve souvent ailleurs, mais gardé ici pour l’exemple)
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
