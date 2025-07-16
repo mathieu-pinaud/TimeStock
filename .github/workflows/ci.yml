@@ -2,26 +2,76 @@ name: CI
 
 on:
   push:
-    branches: [ "main", "ci-integration" ]
+    branches: [ main, ci-integration ]
   pull_request:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository }}         # ex. ghcr.io/Org/TimeStock
+  DOTNET_VERSION: "8.0.x"
+
 jobs:
-  build-and-test:
+  build-test-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write            # indispensable pour pousser sur GHCR
 
     steps:
+      # Checkout repo
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      # Cache + install .NET
+      - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true          # cache global NuGet
 
-      - name: Restore dependencies
-        run: dotnet restore
+      # Restore & Build
+      - run: dotnet restore
+      - run: dotnet build --no-restore -c Release
 
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
+      # Tests + couverture
+      - run: |
+          dotnet test --no-build -c Release \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=./coverage/
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: "**/coverage/coverage.cobertura.xml"
 
-      - name: Run tests (unit + integration)
-        run: dotnet test --no-build --configuration Release
+      # Login GHCR
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build & push SERVER image
+      - name: Build & push Server
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: infrastructure/Docker/Dockerfile.server
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:cache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:cache,mode=max
+
+      # Build & push CLIENT image
+      - name: Build & push Client
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: infrastructure/Docker/Dockerfile.client
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:cache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:cache,mode=max
