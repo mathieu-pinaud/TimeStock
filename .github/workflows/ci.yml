@@ -45,7 +45,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: "**/coverage/coverage.cobertura.xml"
+          path: "**/*.cobertura.xml"
 
       # Builder Buildx + cache GHA
       - uses: docker/setup-buildx-action@v3
