@@ -26,6 +26,10 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           cache: true          # cache global NuGet
+          cache-dependency-path: |
+            TimeStock.sln
+            src/**/*.csproj
+            tests/**/*.csproj    
 
       # Restore & Build
       - run: dotnet restore
