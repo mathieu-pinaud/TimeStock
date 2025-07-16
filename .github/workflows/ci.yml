@@ -1,3 +1,4 @@
+# .github/workflows/ci.yml
 name: CI
 
 on:
@@ -7,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository }}         # ex. ghcr.io/Org/TimeStock
+  IMAGE_PREFIX: ${{ github.repository }}         # ex. ghcr.io/OWNER/TimeStock
   DOTNET_VERSION: "8.0.x"
 
 jobs:
@@ -15,21 +16,21 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write            # indispensable pour pousser sur GHCR
+      packages: write            # push vers GHCR
 
     steps:
-      # Checkout repo
+      # Checkout
       - uses: actions/checkout@v4
 
-      # Cache + install .NET
+      # .NET + cache NuGet
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-          cache: true          # cache global NuGet
+          cache: true
           cache-dependency-path: |
             TimeStock.sln
             src/**/*.csproj
-            tests/**/*.csproj    
+            tests/**/*.csproj
 
       # Restore & Build
       - run: dotnet restore
@@ -41,11 +42,16 @@ jobs:
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=cobertura \
             /p:CoverletOutput=./coverage/
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: "**/coverage/coverage.cobertura.xml"
+
+      # Buildx (driver docker-container + cache GHA)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true          # expose `docker buildx`
 
       # Login GHCR
       - uses: docker/login-action@v3
@@ -64,8 +70,8 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:${{ github.sha }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:cache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:cache,mode=max
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
 
       # Build & push CLIENT image
       - name: Build & push Client
@@ -77,5 +83,5 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:${{ github.sha }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:cache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:cache,mode=max
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
