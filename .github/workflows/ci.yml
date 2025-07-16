@@ -3,12 +3,11 @@ name: CI
 
 on:
   push:
-    branches: [ main, ci-integration ]
+    branches: [ main, develop ]
   pull_request:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository }}         # ex. ghcr.io/OWNER/TimeStock
   DOTNET_VERSION: "8.0.x"
 
 jobs:
@@ -16,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write            # push vers GHCR
+      packages: write
 
     steps:
       # Checkout
@@ -32,11 +31,9 @@ jobs:
             src/**/*.csproj
             tests/**/*.csproj
 
-      # Restore & Build
+      # Build & tests + couverture
       - run: dotnet restore
       - run: dotnet build --no-restore -c Release
-
-      # Tests + couverture
       - run: |
           dotnet test --no-build -c Release \
             /p:CollectCoverage=true \
@@ -47,11 +44,15 @@ jobs:
           name: coverage
           path: "**/coverage/coverage.cobertura.xml"
 
-      # Buildx (driver docker-container + cache GHA)
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      # Builder Buildx + cache GHA
+      - uses: docker/setup-buildx-action@v3
         with:
-          install: true          # expose `docker buildx`
+          install: true
+
+      # Convertir le nom d’image en minuscules
+      - name: Set lowercase image prefix
+        id: vars
+        run: echo "IMAGE_PREFIX_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
       # Login GHCR
       - uses: docker/login-action@v3
@@ -60,7 +61,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build & push SERVER image
+      # Build & push SERVER
       - name: Build & push Server
         uses: docker/build-push-action@v5
         with:
@@ -68,12 +69,12 @@ jobs:
           file: infrastructure/Docker/Dockerfile.server
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-server:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ steps.vars.outputs.IMAGE_PREFIX_LOWER }}-server:latest
+            ${{ env.REGISTRY }}/${{ steps.vars.outputs.IMAGE_PREFIX_LOWER }}-server:${{ github.sha }}
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 
-      # Build & push CLIENT image
+      # Build & push CLIENT
       - name: Build & push Client
         uses: docker/build-push-action@v5
         with:
@@ -81,7 +82,7 @@ jobs:
           file: infrastructure/Docker/Dockerfile.client
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-client:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ steps.vars.outputs.IMAGE_PREFIX_LOWER }}-client:latest
+            ${{ env.REGISTRY }}/${{ steps.vars.outputs.IMAGE_PREFIX_LOWER }}-client:${{ github.sha }}
           cache-from: type=gha
           cache-to:   type=gha,mode=max
