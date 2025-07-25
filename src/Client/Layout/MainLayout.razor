@@ -1,20 +1,64 @@
 ﻿@inherits LayoutComponentBase
+@using MudBlazor
+@using Client.Services
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject AuthService Auth
 
-<CascadingAuthenticationState>
-    <div class="page">
+<MudThemeProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="4" Fixed="true">
+
         <AuthorizeView>
             <Authorized>
-                <div class="sidebar">
-                    <NavMenu />
-                </div>
+                <MudIconButton  Icon="@Icons.Material.Filled.Menu"
+                                Edge="Edge.Start"
+                                Color="Color.Inherit"
+                                OnClick="ToggleDrawer" />
             </Authorized>
         </AuthorizeView>
 
-        <main>
-            <article class="content px-4">
-                @Body
-            </article>
-        </main>
-    </div>
-</CascadingAuthenticationState>
+        <MudText Typo="Typo.h6" Class="pl-2">TimeStock</MudText>
+        <MudSpacer/>
+
+        <AuthorizeView>
+            <Authorized>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           OnClick="Logout">
+                    Déconnexion
+                </MudButton>
+            </Authorized>
+        </AuthorizeView>
+    </MudAppBar>
+
+    <AuthorizeView>
+        <Authorized>
+            <MudDrawer  @bind-Open="_drawerOpen"
+                        Variant="DrawerVariant.Responsive"
+                        Elevation="0"
+                        Class="drawer-width">
+                <NavMenu />
+            </MudDrawer>
+        </Authorized>
+    </AuthorizeView>
+
+    <MudMainContent Class="p-4">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
+    async Task Logout()
+    {
+        await Auth.LogoutAsync();
+        Snackbar.Add("Déconnecté", Severity.Success);
+        Nav.NavigateTo("/auth", false);
+    }
+}

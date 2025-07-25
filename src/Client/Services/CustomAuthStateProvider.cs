@@ -27,7 +27,6 @@ namespace Client.Services
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
-            Console.WriteLine("jusqu'ici tout va bien");
             var identity = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Email, userData?.Email ?? ""),
@@ -41,7 +40,6 @@ namespace Client.Services
 
         public void NotifyUserAuthentication()
         {
-            Console.WriteLine("[AuthProvider] NotifyUserAuthentication() déclenché");
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
 

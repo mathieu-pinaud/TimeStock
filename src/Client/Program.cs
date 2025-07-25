@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor.Services;
 using Client.Services;
+using Client.Theme;
 using Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -29,5 +31,10 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
 
 
 builder.Services.AddAuthorizationCore();
+
+
+// MudBlazor
+builder.Services.AddMudServices();
+builder.Services.AddSingleton(TimeStockTheme.Base);
 
 await builder.Build().RunAsync();

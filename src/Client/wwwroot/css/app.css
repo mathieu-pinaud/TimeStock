@@ -101,3 +101,26 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+
+/* ===========================================================
+   AuthPage – espacement horizontal entre les onglets
+   ===========================================================
+   On cible UNIQUEMENT les onglets du composant .auth-tabs
+   pour ne pas impacter d’autres MudTabs ailleurs.
+*/
+.auth-tabs .mud-tooltip-root {
+    margin-right: 16px;               /* espace à droite de chaque onglet */
+}
+
+/* on retire la marge du tout dernier onglet */
+.auth-tabs .mud-tooltip-root:last-of-type {
+    margin-right: 0;
+}
+
+/* (facultatif) rétrécir les onglets pour qu’ils ne soient pas trop larges */
+.auth-tabs .mud-tab {
+    min-width: auto;                  /* supprime le min-width 160 px par défaut */
+    padding-left: 8px;
+    padding-right: 8px;
+}

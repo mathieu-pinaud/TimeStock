@@ -1,47 +1,28 @@
-﻿@inject NavigationManager Nav
-@inject AuthService Auth
-@using Microsoft.AspNetCore.Components.Authorization
-@using Client.Services
+﻿@using MudBlazor
 
-<AuthorizeView>
-    <Authorized>
-        <div class="top-row ps-3 navbar navbar-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="">TimeStock</a>
-                <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
-        </div>
+<!-- Le Drawer qui contient ce menu est déjà protégé par <AuthorizeView>,
+     donc pas besoin de condition supplémentaire ici. -->
 
-        <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-            <nav class="flex-column">
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">🏠 Home</NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="counter"> Counter</NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="weather"> Weather</NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <button class="btn btn-outline-danger w-100 mt-3" @onclick="Logout">Déconnexion</button>
-                </div>
-            </nav>
-        </div>
-    </Authorized>
-</AuthorizeView>
+<MudNavMenu Dense="true">
 
-@code {
-    private bool collapseNavMenu = true;
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    <MudNavLink Href="/" Match="NavLinkMatch.All"
+                Icon="@Icons.Material.Filled.Dashboard">
+        Dashboard
+    </MudNavLink>
 
-    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+    <MudNavLink Href="/stock"
+                Icon="@Icons.Material.Filled.Inventory2">
+        Stock
+    </MudNavLink>
 
-    private async Task Logout()
-    {
-        await Auth.LogoutAsync();
-        Nav.NavigateTo("/auth");
-    }
-}
+    <MudNavLink Href="/agenda"
+                Icon="@Icons.Material.Filled.CalendarMonth">
+        Agenda
+    </MudNavLink>
+
+    <MudNavLink Href="/settings/profile"
+                Icon="@Icons.Material.Filled.Settings">
+        Paramètres
+    </MudNavLink>
+
+</MudNavMenu>
