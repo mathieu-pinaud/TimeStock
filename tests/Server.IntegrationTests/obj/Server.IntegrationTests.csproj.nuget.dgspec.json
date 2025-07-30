@@ -1,34 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "/home/matskuh/TimeStock/tests/Server.IntegrationTests/Server.IntegrationTests.csproj": {}
+    "/home/mathieu/TimeStock/tests/Server.IntegrationTests/Server.IntegrationTests.csproj": {}
   },
   "projects": {
-    "/home/matskuh/TimeStock/src/Server/Server.csproj": {
+    "/home/mathieu/TimeStock/src/Server/Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/matskuh/TimeStock/src/Server/Server.csproj",
+        "projectUniqueName": "/home/mathieu/TimeStock/src/Server/Server.csproj",
         "projectName": "Server",
-        "projectPath": "/home/matskuh/TimeStock/src/Server/Server.csproj",
-        "packagesPath": "/home/matskuh/.nuget/packages/",
-        "outputPath": "/home/matskuh/TimeStock/src/Server/obj/",
+        "projectPath": "/home/mathieu/TimeStock/src/Server/Server.csproj",
+        "packagesPath": "/home/mathieu/.nuget/packages/",
+        "outputPath": "/home/mathieu/TimeStock/src/Server/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/matskuh/.nuget/NuGet/NuGet.Config"
+          "/home/mathieu/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "/usr/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/matskuh/TimeStock/src/Shared/Shared.csproj": {
-                "projectPath": "/home/matskuh/TimeStock/src/Shared/Shared.csproj"
+              "/home/mathieu/TimeStock/src/Shared/Shared.csproj": {
+                "projectPath": "/home/mathieu/TimeStock/src/Shared/Shared.csproj"
               }
             }
           }
@@ -37,11 +36,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -92,27 +86,26 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.405/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.117/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/matskuh/TimeStock/src/Shared/Shared.csproj": {
+    "/home/mathieu/TimeStock/src/Shared/Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/matskuh/TimeStock/src/Shared/Shared.csproj",
+        "projectUniqueName": "/home/mathieu/TimeStock/src/Shared/Shared.csproj",
         "projectName": "Shared",
-        "projectPath": "/home/matskuh/TimeStock/src/Shared/Shared.csproj",
-        "packagesPath": "/home/matskuh/.nuget/packages/",
-        "outputPath": "/home/matskuh/TimeStock/src/Shared/obj/",
+        "projectPath": "/home/mathieu/TimeStock/src/Shared/Shared.csproj",
+        "packagesPath": "/home/mathieu/.nuget/packages/",
+        "outputPath": "/home/mathieu/TimeStock/src/Shared/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/matskuh/.nuget/NuGet/NuGet.Config"
+          "/home/mathieu/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "/usr/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -125,11 +118,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -151,38 +139,37 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.405/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.117/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/matskuh/TimeStock/tests/Server.IntegrationTests/Server.IntegrationTests.csproj": {
+    "/home/mathieu/TimeStock/tests/Server.IntegrationTests/Server.IntegrationTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/matskuh/TimeStock/tests/Server.IntegrationTests/Server.IntegrationTests.csproj",
+        "projectUniqueName": "/home/mathieu/TimeStock/tests/Server.IntegrationTests/Server.IntegrationTests.csproj",
         "projectName": "Server.IntegrationTests",
-        "projectPath": "/home/matskuh/TimeStock/tests/Server.IntegrationTests/Server.IntegrationTests.csproj",
-        "packagesPath": "/home/matskuh/.nuget/packages/",
-        "outputPath": "/home/matskuh/TimeStock/tests/Server.IntegrationTests/obj/",
+        "projectPath": "/home/mathieu/TimeStock/tests/Server.IntegrationTests/Server.IntegrationTests.csproj",
+        "packagesPath": "/home/mathieu/.nuget/packages/",
+        "outputPath": "/home/mathieu/TimeStock/tests/Server.IntegrationTests/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/matskuh/.nuget/NuGet/NuGet.Config"
+          "/home/mathieu/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "/usr/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/matskuh/TimeStock/src/Server/Server.csproj": {
-                "projectPath": "/home/matskuh/TimeStock/src/Server/Server.csproj"
+              "/home/mathieu/TimeStock/src/Server/Server.csproj": {
+                "projectPath": "/home/mathieu/TimeStock/src/Server/Server.csproj"
               },
-              "/home/matskuh/TimeStock/src/Shared/Shared.csproj": {
-                "projectPath": "/home/matskuh/TimeStock/src/Shared/Shared.csproj"
+              "/home/mathieu/TimeStock/src/Shared/Shared.csproj": {
+                "projectPath": "/home/mathieu/TimeStock/src/Shared/Shared.csproj"
               }
             }
           }
@@ -191,11 +178,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -247,7 +229,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.405/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.117/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

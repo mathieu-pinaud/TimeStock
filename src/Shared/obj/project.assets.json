@@ -8,25 +8,24 @@
     "net8.0": []
   },
   "packageFolders": {
-    "/home/matskuh/.nuget/packages/": {}
+    "/home/mathieu/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/matskuh/TimeStock/src/Shared/Shared.csproj",
+      "projectUniqueName": "/home/mathieu/TimeStock/src/Shared/Shared.csproj",
       "projectName": "Shared",
-      "projectPath": "/home/matskuh/TimeStock/src/Shared/Shared.csproj",
-      "packagesPath": "/home/matskuh/.nuget/packages/",
-      "outputPath": "/home/matskuh/TimeStock/src/Shared/obj/",
+      "projectPath": "/home/mathieu/TimeStock/src/Shared/Shared.csproj",
+      "packagesPath": "/home/mathieu/.nuget/packages/",
+      "outputPath": "/home/mathieu/TimeStock/src/Shared/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/matskuh/.nuget/NuGet/NuGet.Config"
+        "/home/mathieu/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "/usr/share/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -39,11 +38,6 @@
         "warnAsError": [
           "NU1605"
         ]
-      },
-      "restoreAuditProperties": {
-        "enableAudit": "true",
-        "auditLevel": "low",
-        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -65,7 +59,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.405/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.117/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
