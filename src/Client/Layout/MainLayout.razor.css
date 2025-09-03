@@ -4,6 +4,23 @@
     flex-direction: column;
 }
 
+/* espace horizontal entre les onglets de la page Auth */
+.auth-tabs .mud-tabs-toolbar-inner {
+    column-gap: 16px;          /* change la valeur à ton goût (px, rem…) */
+}
+
+/* facultatif : élargir la zone cliquable d'un onglet */
+.auth-tabs .mud-tab {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.auth-tabs .mud-tabs-tabbar-wrapper {
+    column-gap: 16px;        /* ← ajuste la valeur à ton goût */
+}
+
+.drawer-width { width: 260px; }
+
 main {
     flex: 1;
 }

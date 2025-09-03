@@ -1,43 +1,128 @@
 @page "/auth"
-@using Microsoft.AspNetCore.Components
+@using MudBlazor
 @using TimeStock.Shared.Dtos
+@using Client.Services
+@inject AuthService Auth
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
 @attribute [AllowAnonymous]
 
-<h3>Authentification</h3>
+<MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="mt-14">
+    <MudCard Elevation="6" Class="pa-6">
 
-<div class="d-flex gap-3">
-    <button class="btn @(ShowLogin ? "btn-primary" : "btn-outline-primary")" @onclick="ShowLoginForm">
-        Se connecter
-    </button>
-    <button class="btn @(ShowRegister ? "btn-success" : "btn-outline-success")" @onclick="ShowRegisterForm">
-        S'inscrire
-    </button>
-</div>
+        <MudTabs @bind-ActivePanelIndex="_tab" Rounded="true" Color="Color.Primary" Class="auth-tabs">
 
-<div class="mt-4">
-    @if (ShowLogin)
-    {
-        <Login />
-    }
-    else if (ShowRegister)
-    {
-        <Register />
-    }
-</div>
+            <!-- ============ Connexion ============ -->
+            <MudTabPanel Text="Connexion" Icon="@Icons.Material.Filled.Login">
+                <MudForm Model="_login" @ref="_loginForm" Class="d-flex flex-column gap-3">
+                    <MudTextField For="() => _login.Email"
+                                  @bind-Value="_login.Email"
+                                  Label="Email"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Email"
+                                  Required="true" />
+
+                    <MudTextField For="() => _login.Password"
+                                  @bind-Value="_login.Password"
+                                  Label="Mot de passe"
+                                  InputType="InputType.Password"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Lock"
+                                  Required="true" />
+
+                    @if (!string.IsNullOrEmpty(_loginError)) {
+                        <MudAlert Severity="Severity.Error" Dense="true">@_loginError</MudAlert>
+                    }
+                    <MudButton Color="Color.Primary"
+                               Variant="Variant.Filled"
+                               FullWidth
+                               Loading="_busy"
+                               Disabled="_busy"
+                               OnClick="SubmitLogin">
+                        Se connecter
+                    </MudButton>
+                </MudForm>
+            </MudTabPanel>
+
+            <!-- ============ Inscription ============ -->
+            <MudTabPanel Text="Inscription" Icon="@Icons.Material.Filled.PersonAdd">
+                <MudForm Model="_register" @ref="_registerForm" Class="d-flex flex-column gap-3">
+                    <MudTextField For="() => _register.AccountName" @bind-Value="_register.AccountName" Label="Nom de compte" Required="true" />
+                    <MudTextField For="() => _register.Name"        @bind-Value="_register.Name"        Label="Nom"           Required="true" />
+                    <MudTextField For="() => _register.FirstName"   @bind-Value="_register.FirstName"   Label="Prénom"        Required="true" />
+                    <MudTextField For="() => _register.Email"       @bind-Value="_register.Email"       Label="Email"         Required="true" />
+                    <MudTextField For="() => _register.Password"    @bind-Value="_register.Password"    Label="Mot de passe"  InputType="InputType.Password" Required="true" />
+
+                    @if (!string.IsNullOrEmpty(_registerError)){
+                        <MudAlert Severity="Severity.Error" Dense="true">@_registerError</MudAlert>
+                    }
+                    <MudButton Color="Color.Success"
+                               Variant="Variant.Filled"
+                               FullWidth
+                               Loading="_busy"
+                               Disabled="_busy"
+                               OnClick="SubmitRegister">
+                        S’inscrire
+                    </MudButton>
+                </MudForm>
+            </MudTabPanel>
+        </MudTabs>
+    </MudCard>
+</MudContainer>
 
 @code {
-    private bool ShowLogin = true;
-    private bool ShowRegister = false;
+    private int _tab;
+    private bool _busy;
+    private MudForm? _loginForm;
+    private MudForm? _registerForm;
 
-    private void ShowLoginForm()
+    private readonly LoginDto _login   = new();
+    private readonly UserDto  _register = new();
+
+    private string? _loginError;
+    private string? _registerError;
+
+    private async Task<bool> ValidateAndBusy(MudForm form)
     {
-        ShowLogin = true;
-        ShowRegister = false;
+        await form.Validate();
+        if (!form.IsValid) return false;
+        _busy = true;
+        StateHasChanged();
+        return true;
     }
 
-    private void ShowRegisterForm()
+    private void EndBusy() { _busy = false; StateHasChanged(); }
+
+    /* --- callbacks --------------------------------------------------- */
+    private async Task SubmitLogin()
     {
-        ShowLogin = false;
-        ShowRegister = true;
+        if (!await ValidateAndBusy(_loginForm!)) return;
+
+        var ok = await Auth.LoginAsync(_login);
+        EndBusy();
+
+        if (ok)
+        {
+            Snackbar.Add("Connexion réussie ✔", Severity.Success);
+            Nav.NavigateTo("/");
+        }
+        else
+            _loginError = "Identifiants invalides.";
+    }
+
+    private async Task SubmitRegister()
+    {
+        if (!await ValidateAndBusy(_registerForm!)) return;
+
+        var ok = await Auth.RegisterAndLoginAsync(_register);
+        EndBusy();
+
+        if (ok)
+        {
+            Snackbar.Add("Compte créé et connecté ✔", Severity.Success);
+            Nav.NavigateTo("/");
+        }
+        else
+            _registerError = "Échec de l’inscription.";
     }
 }

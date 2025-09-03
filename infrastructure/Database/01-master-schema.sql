@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS Users (
     Email            VARCHAR(255) NOT NULL UNIQUE,
     PasswordHash     VARCHAR(255) NOT NULL,
     DatabaseName     VARCHAR(255) NOT NULL,
-    DatabasePassword VARCHAR(255) NOT NULL      -- NEW (mode B)
+    DatabasePassword VARCHAR(255) NOT NULL
 );
