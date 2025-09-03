@@ -1,8 +1,6 @@
 using MySql.Data.MySqlClient;
 using TimeStock.Shared.Models;
-using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using Dapper;
 
 public class DatabaseService
 {
@@ -28,31 +26,23 @@ public class DatabaseService
 
     public async Task SaveUserAsync(User user)
     {
-        using var connection = new MySqlConnection(_masterConnectionString);
+        await using var connection = new MySqlConnection(_masterConnectionString);
         await connection.OpenAsync();
 
-        string insertUserQuery = "INSERT INTO Users (AccountName, Name, FirstName, Email, PasswordHash, DatabaseName, DatabasePassword) " +
-                                 "VALUES (@AccountName, @Name, @FirstName, @Email, @PasswordHash, @DatabaseName, @DatabasePassword);";
+        const string insertSql = @"
+        INSERT INTO Users
+              (AccountName, Name, FirstName, Email, PasswordHash, DatabaseName, DatabasePassword)
+        VALUES (@AccountName, @Name, @FirstName, @Email, @PasswordHash, @DatabaseName, @DatabasePassword);";
 
-        using var insertCommand = new MySqlCommand(insertUserQuery, connection);
-        insertCommand.Parameters.AddWithValue("@AccountName", user.AccountName);
-        insertCommand.Parameters.AddWithValue("@Name", user.Name);
-        insertCommand.Parameters.AddWithValue("@FirstName", user.FirstName);
-        insertCommand.Parameters.AddWithValue("@Email", user.Email);
-        insertCommand.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
-        insertCommand.Parameters.AddWithValue("@DatabaseName", user.DatabaseName);
-        insertCommand.Parameters.AddWithValue("@DatabasePassword", user.DatabasePassword);
+        await connection.ExecuteAsync(insertSql, user);
 
-        await insertCommand.ExecuteNonQueryAsync();
+        var createDbSql = $"CREATE DATABASE `{user.DatabaseName}`;";
+        var createUserSql = $"CREATE USER `{user.AccountName}`@'%' IDENTIFIED BY '{user.DatabasePassword}';";
+        var grantSql = $"GRANT ALL PRIVILEGES ON `{user.DatabaseName}`.* TO `{user.AccountName}`@'%';";
 
-        using var createDbCommand = new MySqlCommand($"CREATE DATABASE `{user.DatabaseName}`;", connection);
-        await createDbCommand.ExecuteNonQueryAsync();
-
-        using var createUserCommand = new MySqlCommand($"CREATE USER '{user.AccountName}'@'%' IDENTIFIED BY '{user.DatabasePassword}';", connection);
-        await createUserCommand.ExecuteNonQueryAsync();
-
-        using var grantCommand = new MySqlCommand($"GRANT ALL PRIVILEGES ON `{user.DatabaseName}`.* TO '{user.AccountName}'@'%';", connection);
-        await grantCommand.ExecuteNonQueryAsync();
+        await connection.ExecuteAsync(createDbSql);
+        await connection.ExecuteAsync(createUserSql);
+        await connection.ExecuteAsync(grantSql);
     }
 
     public async Task<User?> GetUserByEmailAsync(string email)

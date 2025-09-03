@@ -21,8 +21,8 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<DatabaseService>();
 
 // Tenancy
-builder.Services.AddHttpContextAccessor();                          // accès à HttpContext
-builder.Services.AddScoped<ITenantContext, TenantContext>();        // lit les claims account/db
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddScoped<ITenantConnectionFactory, TenantConnectionFactory>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITenantCredentialsStore, TenantCredentialsStore>();

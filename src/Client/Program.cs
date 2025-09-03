@@ -28,8 +28,6 @@ builder.Services.AddScoped<AuthTokenStorageService>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<CustomAuthStateProvider>());
-
-
 builder.Services.AddAuthorizationCore();
 
 

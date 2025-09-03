@@ -8,7 +8,7 @@ public sealed class TenantConnectionFactory : ITenantConnectionFactory
     private readonly ITenantContext _tenant;
     private readonly ITenantCredentialsStore _store;
 
-    private MySqlConnection? _cached;   // 1 connexion par requête (scope)
+    private MySqlConnection? _cached;
 
     public TenantConnectionFactory(IConfiguration cfg, ITenantContext tenant, ITenantCredentialsStore store)
     {
@@ -23,7 +23,6 @@ public sealed class TenantConnectionFactory : ITenantConnectionFactory
             return _cached;
 
         var (user, pwd) = await _store.GetAsync(_tenant.Account, ct);
-
         var template = _cfg.GetConnectionString("TenantTemplate")!;
         var cs = string.Format(template, user, pwd, _tenant.Database);
 
