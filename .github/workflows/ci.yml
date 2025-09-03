@@ -3,7 +3,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, ci-integration ]
+    branches: [ master, ci-integration, dev ]
   pull_request:
 
 env:
