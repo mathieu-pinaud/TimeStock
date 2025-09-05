@@ -1,5 +1,6 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using StackExchange.Redis;
 
 namespace Server.IntegrationTests;
 
@@ -33,6 +34,9 @@ public class RedisFixture : IAsyncLifetime
 
             DockerCli.Run(
                 $"run -d --name {_cliContainerName} -p 0:6379 redis:7-alpine");
+                
+            using var muxer = await ConnectionMultiplexer.ConnectAsync(Connection);
+            await muxer.GetDatabase().PingAsync();
 
             var port = DockerCli.InspectHostPort(_cliContainerName, 6379);
             Connection = $"localhost:{port}";
