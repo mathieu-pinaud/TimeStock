@@ -73,20 +73,24 @@ public class RegisterLoginTests : IClassFixture<WebApplicationFactory<Program>>
         body!.Token.Should().NotBeNullOrEmpty();
         body.DatabaseName.Should().Be("db_Acme");
     }
-    
+
     [Fact]
     public async Task Me_WarmsUpRedisCache()
     {
-        // 1. Register
-        var regRes = await _client.PostAsJsonAsync("/api/auth/register", new {
+        // 1) Register
+        var regRes = await _client.PostAsJsonAsync("/api/auth/register", new
+        {
+            AccountName = "azerty",
+            Name = "Doe",
+            FirstName = "Jane",
             Email = "azerty@test.com",
-            Password = "Passw0rd!",
-            AccountName = "azerty"
+            Password = "Passw0rd!"
         });
         regRes.EnsureSuccessStatusCode();
 
-        // 2. Login
-        var loginRes = await _client.PostAsJsonAsync("/api/auth/login", new {
+        // 2) Login
+        var loginRes = await _client.PostAsJsonAsync("/api/auth/login", new
+        {
             Email = "azerty@test.com",
             Password = "Passw0rd!"
         });
@@ -96,14 +100,14 @@ public class RegisterLoginTests : IClassFixture<WebApplicationFactory<Program>>
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", login!.Token);
 
-        // 3. Call /me
+        // 3) Call /me (warm cache)
         var meRes = await _client.GetAsync("/api/auth/me");
         meRes.EnsureSuccessStatusCode();
 
-        // 4. Check Redis cache
+        // 4) Check Redis cache (clé LOGIQUE, sans InstanceName)
         using var scope = _services.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var cache = scope.ServiceProvider.GetRequiredService<IDistributedCache>();
-        var key = "timestock:test:tenant:azerty:creds";
+        var key = "tenant:azerty:creds"; // <- NE PAS inclure "timestock:test:"
 
         var cachedJson = await cache.GetStringAsync(key);
         Assert.False(string.IsNullOrEmpty(cachedJson));

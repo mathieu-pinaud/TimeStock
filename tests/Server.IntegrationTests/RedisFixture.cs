@@ -2,30 +2,52 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 
 namespace Server.IntegrationTests;
+
 public class RedisFixture : IAsyncLifetime
 {
-    public ITestcontainersContainer? Container { get; private set; }
+    private ITestcontainersContainer? _container;
+    private string? _cliContainerName;
+
     public string Connection { get; private set; } = "";
 
     public async Task InitializeAsync()
     {
-        Container = new TestcontainersBuilder<TestcontainersContainer>()
-            .WithImage("redis:7-alpine")
-            .WithCleanUp(true)
-            .WithPortBinding(0, 6379) // map sur un port libre
-            .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(6379))
-            .Build();
+        // 1) Tentative Testcontainers
+        try
+        {
+            _container = new TestcontainersBuilder<TestcontainersContainer>()
+                .WithImage("redis:7-alpine")
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(6379))
+                .WithCleanUp(true)
+                .Build();
 
-        await Container.StartAsync();
+            await _container.StartAsync();
+            var hostPort = _container.GetMappedPublicPort(6379);
+            Connection = $"localhost:{hostPort}";
+        }
+        catch (Exception)
+        {
+            // 2) Fallback CLI (no attach)
+            _cliContainerName = "it_redis_tests";
+            try { DockerCli.Run($"rm -f {_cliContainerName}"); } catch { /* ignore */ }
 
-        var hostPort = Container.GetMappedPublicPort(6379);
-        Connection = $"localhost:{hostPort}";
+            DockerCli.Run(
+                $"run -d --name {_cliContainerName} -p 0:6379 redis:7-alpine");
+
+            var port = DockerCli.InspectHostPort(_cliContainerName, 6379);
+            Connection = $"localhost:{port}";
+        }
     }
 
-    public Task DisposeAsync()
+    public async Task DisposeAsync()
     {
-        return Container != null
-            ? Container.DisposeAsync().AsTask()
-            : Task.CompletedTask;
+        if (_container is not null)
+        {
+            await _container.DisposeAsync();
+        }
+        else if (!string.IsNullOrEmpty(_cliContainerName))
+        {
+            try { DockerCli.Run($"rm -f {_cliContainerName}"); } catch { /* ignore */ }
+        }
     }
 }
