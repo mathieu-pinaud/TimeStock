@@ -40,6 +40,18 @@ public class RegisterLoginTests : IClassFixture<WebApplicationFactory<Program>>
                         ["Redis:InstanceName"] = "timestock:test:"
                     });
                 });
+
+                builder.ConfigureServices(services =>
+                {
+                    var existing = services.FirstOrDefault(d => d.ServiceType == typeof(IDistributedCache));
+                    if (existing is not null) services.Remove(existing);
+
+                    services.AddStackExchangeRedisCache(o =>
+                    {
+                        o.Configuration = redis.Connection;    // <-- clé : on force la vraie connexion
+                        o.InstanceName = "timestock:test:";
+                    });
+                });
             });
 
         _client = webAppFactory.CreateClient();     // HttpClient adressé sur l’API in-memory
@@ -109,7 +121,14 @@ public class RegisterLoginTests : IClassFixture<WebApplicationFactory<Program>>
         var cache = scope.ServiceProvider.GetRequiredService<IDistributedCache>();
         var key = "tenant:azerty:creds"; // <- NE PAS inclure "timestock:test:"
 
-        var cachedJson = await cache.GetStringAsync(key);
+        string? cachedJson = null;
+        for (int i = 0; i < 10; i++) // ~5s max
+        {
+            cachedJson = await cache.GetStringAsync(key);
+            if (!string.IsNullOrEmpty(cachedJson))
+                break;
+            await Task.Delay(500);
+        }
         Assert.False(string.IsNullOrEmpty(cachedJson));
         Assert.Contains("Username", cachedJson); // JSON sérialisé des creds
     }
