@@ -10,11 +10,13 @@ public class AuthController : ControllerBase
 {
     private readonly DatabaseService _databaseService;
     private readonly JwtService _jwtService;
+    private readonly ITenantCredentialsStore _credsStore;
 
-    public AuthController(DatabaseService databaseService, JwtService jwtService)
+    public AuthController(DatabaseService databaseService, JwtService jwtService, ITenantCredentialsStore credsStore)
     {
         _databaseService = databaseService;
         _jwtService = jwtService;
+        _credsStore = credsStore;
     }
 
 
@@ -104,14 +106,19 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public ActionResult<MeResponseDto> Me()
+    public async Task<ActionResult<MeResponseDto>> Me()
     {
         var user = HttpContext.User;
-
+        var accountName = user.FindFirst("account")?.Value;
+        if (string.IsNullOrEmpty(accountName))
+        {
+            return Unauthorized(new { message = "Account claim not found." });
+        }
+        _ = await _credsStore.GetAsync(accountName);
         return new MeResponseDto
         {
             Email = user.FindFirst(ClaimTypes.Email)?.Value,
-            AccountName = user.FindFirst("account")?.Value,
+            AccountName = accountName,
             DatabaseName = user.FindFirst("db")?.Value
         };
     }

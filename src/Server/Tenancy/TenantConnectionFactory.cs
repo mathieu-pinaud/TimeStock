@@ -22,9 +22,9 @@ public sealed class TenantConnectionFactory : ITenantConnectionFactory
         if (_cached is { State: ConnectionState.Open })
             return _cached;
 
-        var (user, pwd) = await _store.GetAsync(_tenant.Account, ct);
+        var creds = await _store.GetAsync(_tenant.Account, ct);
         var template = _cfg.GetConnectionString("TenantTemplate")!;
-        var cs = string.Format(template, user, pwd, _tenant.Database);
+        var cs = string.Format(template, creds.Username, creds.Password, _tenant.Database);
 
         _cached = new MySqlConnection(cs);
         await _cached.OpenAsync(ct);

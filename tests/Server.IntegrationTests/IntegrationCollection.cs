@@ -1,4 +1,4 @@
 namespace Server.IntegrationTests;
 
 [CollectionDefinition("integration")]
-public class IntegrationCollection : ICollectionFixture<MySqlFixture> { }
+public class IntegrationCollection : ICollectionFixture<MySqlFixture>, ICollectionFixture<RedisFixture> { }

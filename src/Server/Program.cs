@@ -52,6 +52,13 @@ builder.Services.AddAuthentication(opt =>
     };
 });
 
+// Redis (IDistributedCache)
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetSection("Redis")["Configuration"];
+    options.InstanceName  = builder.Configuration.GetSection("Redis")["InstanceName"] ?? "timestock:";
+});
+
 // ------------------------------------------------------------
 // 2. Build & middleware pipeline
 // ------------------------------------------------------------
@@ -73,30 +80,4 @@ app.UseAuthorization();    // [Authorize]
 // ------------------------------------------------------------
 app.MapControllers();
 
-// Exemple d’endpoint minimal (optionnel)
-app.MapGet("/weatherforecast", () =>
-{
-    var summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild",
-        "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ));
-    return forecast.ToArray();
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
 app.Run();
-
-// Petit record DTO (se trouve souvent ailleurs, mais gardé ici pour l’exemple)
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

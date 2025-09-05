@@ -1,5 +1,6 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Configurations;
 using MySql.Data.MySqlClient;
 
 namespace Server.IntegrationTests;
@@ -9,27 +10,21 @@ public class MySqlFixture : IAsyncLifetime
     private readonly MySqlTestcontainer _container;
 
     public string RootPassword { get; } = "root";
+
     public MySqlFixture()
     {
         _container = new TestcontainersBuilder<MySqlTestcontainer>()
-            .WithImage("mysql:8.0")
-            // on passe uniquement ROOT password et création de la base
-            .WithEnvironment("MYSQL_ROOT_PASSWORD", RootPassword)
-            .WithEnvironment("MYSQL_DATABASE", "TimeStockDB")
-            // expose toujours le port 3306 à l'intérieur du conteneur
-            .WithExposedPort(3306)
-            // mappe le port hôte 3307 vers le port conteneur 3306
-            .WithPortBinding(3307, 3306)
-
-            .WithWaitStrategy(Wait.ForUnixContainer()
-                .UntilPortIsAvailable(3306))
-
+            .WithDatabase(new MySqlTestcontainerConfiguration
+            {
+                Database = "TimeStockDB",
+                Username = "root",
+                Password = RootPassword
+            })
             .WithCleanUp(true)
             .Build();
     }
 
     public string ConnectionString =>
-        // on récupère le port mappé sur le host pour le port conteneur 3306
         $"Server=localhost;Port={_container.GetMappedPublicPort(3306)};" +
         $"Uid=root;Pwd={RootPassword};Database=TimeStockDB;";
 
@@ -58,5 +53,11 @@ public class MySqlFixture : IAsyncLifetime
         await using var cmd = new MySqlCommand(schema, conn);
         await cmd.ExecuteNonQueryAsync();
     }
-    public Task DisposeAsync() => _container.DisposeAsync().AsTask();
+
+    public Task DisposeAsync()
+    {
+        return _container != null
+            ? _container.DisposeAsync().AsTask()
+            : Task.CompletedTask;
+    }
 }
