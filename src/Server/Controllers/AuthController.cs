@@ -113,8 +113,15 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(accountName))
         {
             return Unauthorized(new { message = "Account claim not found." });
+        } try
+        {
+            await _credsStore.GetAsync(accountName);
         }
-        _ = await _credsStore.GetAsync(accountName);
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+
         return new MeResponseDto
         {
             Email = user.FindFirst(ClaimTypes.Email)?.Value,
