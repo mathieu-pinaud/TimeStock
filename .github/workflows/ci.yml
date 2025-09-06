@@ -33,6 +33,11 @@ jobs:
             TimeStock.sln
             src/**/*.csproj
             tests/**/*.csproj
+            
+      # 4) Setup Buildx
+      - uses: docker/setup-buildx-action@v3
+        with:
+         install: true
 
       # 3) Build & tests + couverture
       - run: dotnet restore
@@ -48,11 +53,6 @@ jobs:
           name: coverage
           path: |
             **/TestResults/coverage/coverage.cobertura.xml
-
-      # 4) Setup Buildx
-      - uses: docker/setup-buildx-action@v3
-        with:
-          install: true
 
       # 5) Lowercase image prefix
       - name: Set lowercase image prefix

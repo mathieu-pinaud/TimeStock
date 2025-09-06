@@ -25,6 +25,9 @@ public class RedisFixture : IAsyncLifetime
             await _container.StartAsync();
             var hostPort = _container.GetMappedPublicPort(6379);
             Connection = $"localhost:{hostPort}";
+
+            using var muxer = await ConnectionMultiplexer.ConnectAsync(Connection);
+            await muxer.GetDatabase().PingAsync();
         }
         catch (Exception)
         {
